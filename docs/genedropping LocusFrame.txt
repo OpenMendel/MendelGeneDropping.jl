@@ -1,4 +1,4 @@
-Locus,Allele,Chromosome,Location_bp,FemaleMorgans,MaleMorgans,European,African,Chinese
+Locus,Allele,Chromosome,Basepairs,FemaleMorgans,MaleMorgans,European,African,Chinese
 ABO,A,9,10,0.0,0.0,0.27,0.18,0.19
 ABO,B,9,10,0.0,0.0,0.06,0.11,0.17
 ABO,O,9,10,0.0,0.0,NA,0.71,0.64

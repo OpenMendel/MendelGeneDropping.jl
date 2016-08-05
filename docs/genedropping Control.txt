@@ -11,4 +11,4 @@ output_file = genedropping Output.txt
 #
 analysis_option = GeneDropping
 repetitions = 2
-
+populations = European,African,Chinese
