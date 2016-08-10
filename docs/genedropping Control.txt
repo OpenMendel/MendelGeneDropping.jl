@@ -7,8 +7,7 @@ phenotype_file = genedropping PhenotypeFrame.txt
 new_pedigree_file = genedropping NewPedigreeFrame.txt
 output_file = genedropping Output.txt
 #
-# Analysis parameters.
+# Analysis parameters for GeneDropping option.
 #
-analysis_option = GeneDropping
 repetitions = 2
-populations = European,African,Chinese
+populations = European, African, Chinese
