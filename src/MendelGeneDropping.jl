@@ -41,12 +41,11 @@ function GeneDropping(control_file = ""; args...)
   # by setting their default values using the format:
   # keyword["some_keyword_name"] = default_value
   #
-     # possible values are: "Unordered", "Ordered", "Sourced", or "Population"
+    # Allowed values are: "Unordered", "Ordered", "Sourced", or "Population".
   keyword["gene_drop_output"] = "Unordered"
   keyword["interleaved"] = true
   keyword["keep_founder_genotypes"] = false
-     # not yet implemented
-  keyword["missing_data_pattern"] = "ExistingData"
+  keyword["missing_data_pattern"] = "ExistingData" # Not yet implemented.
   keyword["missing_rate"] = 0.0
   keyword["repetitions"] = 1
   #
