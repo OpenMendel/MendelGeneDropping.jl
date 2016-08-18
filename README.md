@@ -1,6 +1,6 @@
 # MendelGeneDropping
 
-This [Julia](http://julialang.org/) package This package performs gene dropping with several useful options for the output. It is one component of the umbrella [OpenMendel](https://openmendel.github.io) project.
+This [Julia](http://julialang.org/) package performs gene dropping with several useful options for the output. MendelGeneDropping is one component of the umbrella [OpenMendel](https://openmendel.github.io) project.
 
 [![](https://img.shields.io/badge/docs-current-blue.svg)](https://OpenMendel.github.io/MendelGeneDropping.jl)
 
@@ -22,11 +22,17 @@ There are example data files in the "docs" subfolder of each Mendel package, for
 
 ## Running the Analysis
 
-To run this analysis package, first launch Julia. Then load the package with the command:     julia> using MendelGeneDropping
+To run this analysis package, first launch Julia. Then load the package with the command:
+
+     julia> using MendelGeneDropping
 
 Next, if necessary, change to the directory containing your files, for example,
 
-     julia> cd("~/path/to/data/files/")Finally, to run the analysis using the parameters in the control file Control_file.txt use the command:     julia> GeneDropping("Control_file.txt")
+     julia> cd("~/path/to/data/files/")
+
+Finally, to run the analysis using the parameters in the control file Control_file.txt use the command:
+
+     julia> GeneDropping("Control_file.txt")
 
 *Note: The package is called* MendelGeneDropping *but the analysis function is called simply* GeneDropping.
 
