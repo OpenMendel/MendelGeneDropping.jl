@@ -35,7 +35,7 @@ function GeneDropping(control_file = ""; args...)
   # The user specifies the analysis to perform via a set of keywords.
   # Start the keywords at their default values.
   #
-  keyword = set_keyword_defaults!(Dict{ASCIIString, Any}())
+  keyword = set_keyword_defaults!(Dict{AbstractString, Any}())
   #
   # Keywords unique to this analysis should be first defined here
   # by setting their default values using the format:
@@ -102,7 +102,7 @@ and the boolean keyword 'interleaved'.
 function genedropping_option(pedigree::Pedigree, person::Person,
   locus::Locus, locus_frame::DataFrame, 
   phenotype_frame::DataFrame, pedigree_frame::DataFrame,
-  keyword::Dict{ASCIIString, Any})
+  keyword::Dict{AbstractString, Any})
 
   (rows, columns) = size(pedigree_frame)
   new_pedigree_frame = deepcopy(pedigree_frame[1, 1:columns])
@@ -164,8 +164,12 @@ function genedropping_option(pedigree::Pedigree, person::Person,
           frame[1:extent, l] = converted_genotype[:, loc]
         end
         #
+        # Sort the new pedigree so that it is the same order as the input file.
+        # NB: Thus the new pedigree frame will not agree
+        # with the order of the individuals in the data structures.
         # Append the simulated data to the new pedigree frame.
         #
+        sort!(frame, cols = [:EntryOrder])
         append!(new_pedigree_frame, frame)
       end
     end
@@ -206,19 +210,26 @@ function genedropping_option(pedigree::Pedigree, person::Person,
           frame[1:extent, l] = converted_genotype[:, loc]
         end
         #
+        # Sort the new pedigree so that it is the same order as the input file.
+        # NB: Thus the new pedigree frame will not agree
+        # with the order of the individuals in the data structures.
         # Append the simulated data to the new pedigree frame.
         #
+        sort!(frame, cols = [:EntryOrder])
         append!(new_pedigree_frame, frame)
       end
     end
   end
   #
-  # Write the simulated data to a file and return.
+  # If an output file was named for the simulated pedigrees,
+  # then write the data, without the EntryOrder field, to the file.
   #
   deleterows!(new_pedigree_frame, 1)
   new_pedigree_file = keyword["new_pedigree_file"]
-  if iswritable(new_pedigree_file)
-    writetable(keyword["new_pedigree_file"], new_pedigree_frame)
+  if new_pedigree_file != ""
+    names_list = names(new_pedigree_frame)
+    deleteat!(names_list, findin(names_list, [:EntryOrder]))
+    writetable(new_pedigree_file, new_pedigree_frame[:, names_list])
   end
   return new_pedigree_frame
 end # function gene_dropping_option
@@ -229,7 +240,7 @@ over the model loci. These are the loci common to the Pedigree
 and Locus frames.
 """
 function simulate_genotypes(pedigree::Pedigree, person::Person,
-  locus::Locus, keyword::Dict{ASCIIString, Any}, ped::Int)
+  locus::Locus, keyword::Dict{AbstractString, Any}, ped::Int)
 
   theta = locus.theta
   #
@@ -266,7 +277,7 @@ function simulate_genotypes(pedigree::Pedigree, person::Person,
     # allele frequencies in the component populations.
     #
     for i = 1:founders
-      frequency = person.admixture[i + q, :] * locus.frequency[loc]
+      frequency = transpose(vec(person.admixture[i + q, :])) * locus.frequency[loc]
       male = person.male[i + q]
       #
       # Generate a founder genotype at the current locus.
@@ -356,7 +367,7 @@ This function computes source labels for founder genes in a single pedigree.
 Gene sources can be labeled by founders or ancestral populations.
 """
 function founder_source(pedigree::Pedigree, person::Person,
-  locus::Locus, ped::Int, gene_drop_output::ASCIIString)
+  locus::Locus, ped::Int, gene_drop_output::AbstractString)
 
   q = pedigree.start[ped] - 1
   founders = pedigree.founders[ped]
@@ -461,10 +472,10 @@ This function converts sampled numerical genotypes into ordinary
 genotypes.
 """
 function convert_sampled_genotype(locus::Locus, sampled_genotype::Array{Int, 3},
-  separator::ASCIIString, gene_drop_output::ASCIIString)
+  separator::AbstractString, gene_drop_output::AbstractString)
 
   (m, n) = (size(sampled_genotype, 2), size(sampled_genotype, 3))
-  converted_genotype = Array(ASCIIString, m, n)
+  converted_genotype = Array(AbstractString, m, n)
   if gene_drop_output == "Unordered" || gene_drop_output == "Ordered"
     #
     # Convert allele numbers to allele names and concatenate.
