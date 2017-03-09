@@ -14,7 +14,7 @@ Within Julia, use the package manager to install Mendel		:
 This package supports Julia v0.4 and v0.5.
 
 ### Input Files
-The MendelGeneDropping analysis package uses the following input files. Example input files can be found in the [docs]( https://github.com/OpenMendel/MendelGeneDropping.jl/tree/master/docs) subfolder of the MendelGeneDropping project. (An analysis won't always need every file type below.)
+The MendelGeneDropping analysis package uses the following input files. Example input files can be found in the [docs](https://github.com/OpenMendel/MendelGeneDropping.jl/tree/master/docs) subfolder of the MendelGeneDropping project. (An analysis won't always need every file type below.)
 
 * [Control File](#control-file): Specifies the names of your data input and output files and any optional parameters (*keywords*) for the analysis. (For a list of common keywords, see [Keywords Table](https://openmendel.github.io/MendelBase.jl/#keywords-table)).
 * [Locus File](https://openmendel.github.io/MendelBase.jl/#locus-file): Names and describes the genetic loci in your data.
@@ -23,7 +23,8 @@ The MendelGeneDropping analysis package uses the following input files. Example 
 * [SNP Definition File](https://openmendel.github.io/MendelBase.jl/#snp-definition-file): Defines your SNPs with information such as SNP name, chromosome, position, allele names, allele frequencies.
 * [SNP Data File](https://openmendel.github.io/MendelBase.jl/#snp-data-file): Holds the genotypes for your data set. Must be a standard binary PLINK BED file in SNP major format. If you have a SNP data file you must have a SNP definition file.
 
-### Control file<a id="control-file"></a>
+<a id="control-file"></a>
+### Control file
 The Control file is a text file consisting of keywords and their assigned values. The format of the Control file is:
 
 	Keyword = Keyword_Value(s)
@@ -46,7 +47,8 @@ Below is an example of a simple Control file to run Gene Dropping:
 
 In the example above, there are seven keywords. Three keywords specify the input files: *genedropping LocusFrame.txt*, *genedropping PedigreeFrame.txt*, and *genedropping PhenotypeFrame.txt*. Two keywords specify the output files: *genedropping Output.txt* is the results file and *genedropping NewPedigreeFrame.txt* is the new pedigree OpenMendel generates, with the added simulated genotypes. The last two keywords specify analysis parameters: *repetitions* (2), and *populations* (European, African, and Chinese). The text after the '=' are the keyword values.
 
-### Keywords<a id="keywords-table"></a>
+<a id="keywords-table"></a>
+### Keywords
 This is a list of OpenMendel keywords specific to Gene Dropping. A list of OpenMendel keywords common to most analysis package can be found [here](https://openmendel.github.io/MendelBase.jl/#keywords-table). The names of keywords are *not* case sensitive. (The keyword values *may* be case sensitive.)
 
 Keyword          |   Default Value    | Allowed Values |  Short Description       
@@ -58,7 +60,7 @@ missing_rate   | 0.0 |   Real     |
 repetitions    |   1   |   integer     |       Repetitions for sharing statistics
 
 ### Data Files
-Gene Dropping requires a [Control file](https://openmendel.github.io/MendelBase.jl/#control-file), and a [Pedigree file](https://openmendel.github.io/MendelBase.jl/#pedigree-file). Genotype data can be included in the Pedigree file, in which case a [Locus file](https://openmendel.github.io/MendelBase.jl/#locus-file) is required. Alternatively, genotype data can be provided in a [SNP data file](https://openmendel.github.io/MendelBase.jl/#snp-data-file), in which case a [SNP Definition File](https://openmendel.github.io/MendelBase.jl/#snp-definition-file) is required. OpenMendel will also accept [PLINK format](http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml) FAM and BIM files. Details on the format and contents of the Control and data files can be found on the [MendelBase](https://openmendel.github.io/MendelBase.jl) documentation page. There are example data files in the Gene Dropping [docs](https://github.com/OpenMendel/MendelGeneDropping.jl/tree/master/docs) folder.
+Gene Dropping requires a [Control file](https://openmendel.github.io/MendelBase.jl/#control-file), and a [Pedigree file](https://openmendel.github.io/MendelBase.jl/#pedigree-file). Genotype data can be included in the Pedigree file, in which case a [Locus file](https://openmendel.github.io/MendelBase.jl/#locus-file) is required. Alternatively, genotype data can be provided in a [SNP data file](https://openmendel.github.io/MendelBase.jl/#snp-data-file), in which case a [SNP Definition File](https://openmendel.github.io/MendelBase.jl/#snp-definition-file) is required. OpenMendel will also accept [PLINK format](http://zzz.bwh.harvard.edu/plink) FAM and BIM files. Details on the format and contents of the Control and data files can be found on the [MendelBase](https://openmendel.github.io/MendelBase.jl) documentation page. There are example data files in the Gene Dropping [docs](https://github.com/OpenMendel/MendelGeneDropping.jl/tree/master/docs) folder.
 
 ### Running the Analysis
 
