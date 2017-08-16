@@ -275,9 +275,12 @@ function simulate_genotypes(pedigree::Pedigree, person::Person,
     # Choose a compatible ordered genotype for each founder.
     # Each allele frequency is a convex combination of the
     # allele frequencies in the component populations.
+    # The frequency variable is a column vector.
     #
     for i = 1:founders
-      frequency = transpose(vec(person.admixture[i + q, :])) * locus.frequency[loc]
+      frequency =
+        vec(transpose(transpose(person.admixture[i + q, :]) *
+	              locus.frequency[loc]))
       male = person.male[i + q]
       #
       # Generate a founder genotype at the current locus.
@@ -455,27 +458,26 @@ end # function choose_genotype
 This function samples a random ordered genotype from
 the universe of possible ordered genotypes.
 """
-function random_genotype(frequency::Matrix{Float64}, xlinked::Bool, male::Bool)
+function random_genotype(frequency::Vector{Float64}, xlinked::Bool, male::Bool)
 
   if xlinked && male
-    i = random_category(vec(frequency))
+    i = random_category(frequency)
     return [i i]
   else
-    i = random_category(vec(frequency))
-    j = random_category(vec(frequency))
+    i = random_category(frequency)
+    j = random_category(frequency)
     return [i j]
   end
 end # function random_genotype
 
 """
-This function converts sampled numerical genotypes into ordinary
-genotypes.
+This function converts sampled numerical genotypes into ordinary genotypes.
 """
 function convert_sampled_genotype(locus::Locus, sampled_genotype::Array{Int, 3},
   separator::AbstractString, gene_drop_output::AbstractString)
 
   (m, n) = (size(sampled_genotype, 2), size(sampled_genotype, 3))
-  converted_genotype = Array(AbstractString, m, n)
+  converted_genotype = Array{AbstractString}(m, n)
   if gene_drop_output == "Unordered" || gene_drop_output == "Ordered"
     #
     # Convert allele numbers to allele names and concatenate.
