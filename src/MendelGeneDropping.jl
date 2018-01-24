@@ -222,13 +222,14 @@ function genedropping_option(pedigree::Pedigree, person::Person,
   end
   #
   # If an output file was named for the simulated pedigrees,
-  # then write the data, without the EntryOrder field, to the file.
+  # then output the data, without the EntryOrder or Inverse_Perm fields.
   #
   deleterows!(new_pedigree_frame, 1)
   new_pedigree_file = keyword["new_pedigree_file"]
   if new_pedigree_file != ""
     names_list = names(new_pedigree_frame)
     deleteat!(names_list, findin(names_list, [:EntryOrder]))
+    deleteat!(names_list, findin(names_list, [:Inverse_Perm]))
     writetable(new_pedigree_file, new_pedigree_frame[:, names_list])
   end
   return new_pedigree_frame
