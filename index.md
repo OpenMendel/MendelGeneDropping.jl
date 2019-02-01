@@ -5,16 +5,16 @@ Mendel Gene Dropping is a component of the umbrella [OpenMendel](https://openmen
 The raw material for gene dropping consists of sets of pedigrees and loci. People within the pedigrees must be assigned either blank phenotypes or Mendelian consistent phenotypes. Gene dropping is carried out independently of observed phenotypes at those loci common to the definition and map files. By varying the content of the map file, you can choose exactly which loci to subject to gene dropping. Phenotypes at the remaining loci of the definition file are left untouched. Simulated genotypes rather than simulated phenotypes are reported. There are no limits on the complexity of the pedigrees or the number of loci. You can use founders from different populations, provided these populations are defined. Each founder should be assigned to a population; any unassigned founders are assumed to come from the first population.
 
 ### Installation
-*Note: The three OpenMendel packages (1) [SnpArrays](https://openmendel.github.io/SnpArrays.jl/latest/), (2) [Search](https://openmendel.github.io/Search.jl), and (3) [MendelBase](https://openmendel.github.io/MendelBase.jl) must be installed before any other OpenMendel package will run. It is easiest if these three packages are installed in the above order and before any other OpenMendel package.*
+*Note: The three OpenMendel packages (1) [SnpArrays](https://openmendel.github.io/SnpArrays.jl/latest/), (2) [MendelSearch](https://openmendel.github.io/MendelSearch.jl), and (3) [MendelBase](https://openmendel.github.io/MendelBase.jl) must be installed before any other OpenMendel package will run. It is easiest if these three packages are installed in the above order and before any other OpenMendel package.*
 
 Within Julia, use the package manager to install Mendel		:
 
-    Pkg.clone("https://github.com/OpenMendel/MendelGeneDropping.jl.git")
+    pkg> add https://github.com/OpenMendel/MendelGeneDropping.jl.git
 
-This package supports Julia v0.4 and v0.5.
+This package supports Julia v1.0+
 
 ### Input Files
-The MendelGeneDropping analysis package uses the following input files. Example input files can be found in the [docs](https://github.com/OpenMendel/MendelGeneDropping.jl/tree/master/docs) subfolder of the MendelGeneDropping project. (An analysis won't always need every file type below.)
+The MendelGeneDropping analysis package uses the following input files. Example input files can be found in the [data](https://github.com/OpenMendel/MendelGeneDropping.jl/tree/master/data) subfolder of the MendelGeneDropping project. (An analysis won't always need every file type below.)
 
 * [Control File](#control-file): Specifies the names of your data input and output files and any optional parameters (*keywords*) for the analysis. (For a list of common keywords, see [Keywords Table](https://openmendel.github.io/MendelBase.jl/#keywords-table)).
 * [Locus File](https://openmendel.github.io/MendelBase.jl/#locus-file): Names and describes the genetic loci in your data.
