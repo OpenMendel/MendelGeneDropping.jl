@@ -1,3 +1,5 @@
+__precompile__()
+
 """
 This module simulates gene flow by gene dropping.
 """
@@ -6,12 +8,12 @@ module MendelGeneDropping
 # Required OpenMendel packages and modules.
 #
 using MendelBase
-# using DataStructures                  # Now in MendelBase.
-# using GeneralUtilities                # Now in MendelBase.
+# namely: DataStructures, GeneralUtilities
 #
 # Required external modules.
 #
-using DataFrames                        # From package DataFrames.
+using CSV
+using DataFrames
 
 export GeneDropping
 
@@ -20,7 +22,7 @@ This is the wrapper function for the Gene Dropping analysis option.
 """
 function GeneDropping(control_file = ""; args...)
 
-  const GENE_DROPPING_VERSION :: VersionNumber = v"0.1.0"
+  GENE_DROPPING_VERSION :: VersionNumber = v"0.1.0"
   #
   # Print the logo. Store the initial directory.
   #
@@ -105,7 +107,8 @@ function genedropping_option(pedigree::Pedigree, person::Person,
   keyword::Dict{AbstractString, Any})
 
   (rows, columns) = size(pedigree_frame)
-  new_pedigree_frame = deepcopy(pedigree_frame[1, 1:columns])
+  new_pedigree_frame = deepcopy(pedigree_frame[1:1, 1:columns])
+  allowmissing!(new_pedigree_frame)
   gene_drop_output = keyword["gene_drop_output"]
   #
   # Determine whether to use the ordered or unordered allele separator in output.
@@ -137,6 +140,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         finish = pedigree.twin_finish[ped]
         extent = finish - start + 1
         frame = deepcopy(pedigree_frame[start:finish, 1:columns])
+        allowmissing!(frame)
         #
         # Perform gene dropping.
         #
@@ -169,7 +173,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         # with the order of the individuals in the data structures.
         # Append the simulated data to the new pedigree frame.
         #
-        sort!(frame, cols = [:EntryOrder])
+        sort!(frame, :EntryOrder)
         append!(new_pedigree_frame, frame)
       end
     end
@@ -186,6 +190,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
       #
       for repetition = 1:keyword["repetitions"]
         frame = deepcopy(pedigree_frame[start:finish, 1:columns])
+        allowmissing!(frame)
         (sampled_genotype, source) =
           simulate_genotypes(pedigree, person, locus, keyword, ped)
         #
@@ -215,22 +220,26 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         # with the order of the individuals in the data structures.
         # Append the simulated data to the new pedigree frame.
         #
-        sort!(frame, cols = [:EntryOrder])
+        sort!(frame, :EntryOrder)
         append!(new_pedigree_frame, frame)
       end
     end
   end
   #
-  # If an output file was named for the simulated pedigrees,
-  # then output the data, without the EntryOrder or Inverse_Perm fields.
+  # If an output file was named for the simulations, then output the data.
+  # First, remove the first row, which is a stub of the input pedigree.
+  # Second, remove the EntryOrder or Inverse_Perm columns.
   #
-  deleterows!(new_pedigree_frame, 1)
-  new_pedigree_file = keyword["new_pedigree_file"]
+##  deleterows!(new_pedigree_frame, 1)
+  new_pedigree_frame = new_pedigree_frame[2:end, :]
+  new_pedigree_file = string(keyword["new_pedigree_file"])
   if new_pedigree_file != ""
     names_list = names(new_pedigree_frame)
-    deleteat!(names_list, findin(names_list, [:EntryOrder]))
-    deleteat!(names_list, findin(names_list, [:Inverse_Perm]))
-    writetable(new_pedigree_file, new_pedigree_frame[:, names_list])
+    deleteat!(names_list, findall((in)([:EntryOrder]), names_list))
+    deleteat!(names_list, findall((in)([:Inverse_Perm]), names_list))
+    CSV.write(new_pedigree_file, new_pedigree_frame[names_list];
+      writeheader = true, delim = keyword["output_field_separator"],
+      missingstring = keyword["output_missing_value"])
   end
   return new_pedigree_frame
 end # function gene_dropping_option
@@ -388,8 +397,8 @@ function founder_source(pedigree::Pedigree, person::Person,
         source[2, i, l] = random_category(vec(person.admixture[i + q, :]))
       end
     else
-      source[1, i, :] = 2i - 1
-      source[2, i, :] = 2i
+      source[1, i, :] .= 2i - 1
+      source[2, i, :] .= 2i
     end
   end
   #
@@ -478,7 +487,7 @@ function convert_sampled_genotype(locus::Locus, sampled_genotype::Array{Int, 3},
   separator::AbstractString, gene_drop_output::AbstractString)
 
   (m, n) = (size(sampled_genotype, 2), size(sampled_genotype, 3))
-  converted_genotype = Array{AbstractString}(m, n)
+  converted_genotype = Array{AbstractString}(undef, m, n)
   if gene_drop_output == "Unordered" || gene_drop_output == "Ordered"
     #
     # Convert allele numbers to allele names and concatenate.
@@ -506,6 +515,12 @@ function convert_sampled_genotype(locus::Locus, sampled_genotype::Array{Int, 3},
   end
   return converted_genotype
 end # function convert_sampled_genotype
+#
+# Method to obtain path to this package's data files
+# so they can be used in the documentation and testing routines.
+# For example, datadir("Control file.txt") will return
+# "/path/to/package/data/Control file.txt"
+#
+datadir(parts...) = joinpath(@__DIR__, "..", "data", parts...)
 
 end # module MendelGeneDropping
-
