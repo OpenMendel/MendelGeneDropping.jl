@@ -22,7 +22,7 @@ This is the wrapper function for the Gene Dropping analysis option.
 """
 function GeneDropping(control_file = ""; args...)
 
-  GENE_DROPPING_VERSION :: VersionNumber = v"0.1.0"
+  GENE_DROPPING_VERSION :: VersionNumber = v"0.5.0"
   #
   # Print the logo. Store the initial directory.
   #
