@@ -21,15 +21,12 @@ export GeneDropping
 This is the wrapper function for the Gene Dropping analysis option.
 """
 function GeneDropping(control_file = ""; args...)
-
-  GENE_DROPPING_VERSION :: VersionNumber = v"0.5.0"
   #
   # Print the logo. Store the initial directory.
   #
   print(" \n \n")
   println("     Welcome to OpenMendel's")
   println("  Gene Dropping analysis option")
-  println("        version ", GENE_DROPPING_VERSION)
   print(" \n \n")
   println("Reading the data.\n")
   initial_directory = pwd()
@@ -69,7 +66,7 @@ function GeneDropping(control_file = ""; args...)
   # Read the genetic data from the external files named in the keywords.
   #
   (pedigree, person, nuclear_family, locus, snpdata,
-    locus_frame, phenotype_frame, pedigree_frame, snp_definition_frame) =
+    locus_frame, phenotype_frame, person_frame, snp_definition_frame) =
     read_external_data_files(keyword)
   #
   # Check if SNP data were read.
@@ -82,9 +79,9 @@ function GeneDropping(control_file = ""; args...)
   #
     println(" \nAnalyzing the data.\n")
     execution_error = false
-    new_pedigree_frame = genedropping_option(pedigree, person,
-      locus, locus_frame, phenotype_frame, pedigree_frame, keyword)
-    show(new_pedigree_frame)
+    new_person_frame = genedropping_option(pedigree, person,
+      locus, locus_frame, phenotype_frame, person_frame, keyword)
+    show(new_person_frame)
     if execution_error
       println(" \n \nERROR: Mendel terminated prematurely!\n")
     else
@@ -110,12 +107,12 @@ and the boolean keyword 'interleaved'.
 """
 function genedropping_option(pedigree::Pedigree, person::Person,
   locus::Locus, locus_frame::DataFrame, 
-  phenotype_frame::DataFrame, pedigree_frame::DataFrame,
+  phenotype_frame::DataFrame, person_frame::DataFrame,
   keyword::Dict{AbstractString, Any})
 
-  (rows, columns) = size(pedigree_frame)
-  new_pedigree_frame = deepcopy(pedigree_frame[1:1, 1:columns])
-  allowmissing!(new_pedigree_frame)
+  (rows, columns) = size(person_frame)
+  new_person_frame = deepcopy(person_frame[1:1, 1:columns])
+  allowmissing!(new_person_frame)
   gene_drop_output = keyword["gene_drop_output"]
   #
   # Determine whether to use the ordered or unordered allele separator in output.
@@ -143,10 +140,10 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         #
         # Copy the relevant part of the pedigree data frame.
         #
-        start = pedigree.start[ped]
-        finish = pedigree.twin_finish[ped]
-        extent = finish - start + 1
-        frame = deepcopy(pedigree_frame[start:finish, 1:columns])
+        pedstart = pedigree.pedstart[ped]
+        twinfinish = pedigree.twin_finish[ped]
+        extent = twinfinish - pedstart + 1
+        frame = deepcopy(person_frame[pedstart:twinfinish, 1:columns])
         allowmissing!(frame)
         #
         # Perform gene dropping.
@@ -156,7 +153,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         #
         # Name the pedigree replicate.
         #
-        frame[1:extent, :Pedigree] = pedigree.name[ped] * string(repetition)
+        frame[1:extent, :Pedigree] .= pedigree.name[ped] * string(repetition)
         #
         # Output can be sampled alleles or sources.
         #
@@ -171,7 +168,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         # Load the simulated data.
         #
         for loc = 1:locus.loci
-          l = locus.locus_field_in_pedigree_frame[loc]
+          l = locus.locus_field_in_person_frame[loc]
           frame[1:extent, l] = converted_genotype[:, loc]
         end
         #
@@ -181,7 +178,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         # Append the simulated data to the new pedigree frame.
         #
         sort!(frame, :EntryOrder)
-        append!(new_pedigree_frame, frame)
+        append!(new_person_frame, frame)
       end
     end
   else
@@ -189,14 +186,14 @@ function genedropping_option(pedigree::Pedigree, person::Person,
       #
       # Copy the relevant part of the pedigree data frame.
       #
-      start = pedigree.start[ped]
-      finish = pedigree.finish[ped]
-      extent = finish - start + 1
+      pedstart = pedigree.pedstart[ped]
+      pedfinish = pedigree.pedfinish[ped]
+      extent = pedfinish - pedstart + 1
       #
       # Perform gene dropping.
       #
       for repetition = 1:keyword["repetitions"]
-        frame = deepcopy(pedigree_frame[start:finish, 1:columns])
+        frame = deepcopy(person_frame[pedstart:pedfinish, 1:columns])
         allowmissing!(frame)
         (sampled_genotype, source) =
           simulate_genotypes(pedigree, person, locus, keyword, ped)
@@ -218,7 +215,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         # Load the simulated data.
         #
         for l = 1:locus.model_loci
-          l = locus.locus_field_in_pedigree_frame[loc]
+          l = locus.locus_field_in_person_frame[loc]
           frame[1:extent, l] = converted_genotype[:, loc]
         end
         #
@@ -228,7 +225,7 @@ function genedropping_option(pedigree::Pedigree, person::Person,
         # Append the simulated data to the new pedigree frame.
         #
         sort!(frame, :EntryOrder)
-        append!(new_pedigree_frame, frame)
+        append!(new_person_frame, frame)
       end
     end
   end
@@ -237,18 +234,18 @@ function genedropping_option(pedigree::Pedigree, person::Person,
   # First, remove the first row, which is a stub of the input pedigree.
   # Second, remove the EntryOrder or Inverse_Perm columns.
   #
-##  deleterows!(new_pedigree_frame, 1)
-  new_pedigree_frame = new_pedigree_frame[2:end, :]
+##  deleterows!(new_person_frame, 1)
+  new_person_frame = new_person_frame[2:end, :]
   new_pedigree_file = string(keyword["new_pedigree_file"])
   if new_pedigree_file != ""
-    names_list = names(new_pedigree_frame)
+    names_list = names(new_person_frame)
     deleteat!(names_list, findall((in)([:EntryOrder]), names_list))
     deleteat!(names_list, findall((in)([:Inverse_Perm]), names_list))
-    CSV.write(new_pedigree_file, new_pedigree_frame[names_list];
+    CSV.write(new_pedigree_file, new_person_frame[:, names_list];
       writeheader = true, delim = keyword["output_field_separator"],
       missingstring = keyword["output_missing_value"])
   end
-  return new_pedigree_frame
+  return new_person_frame
 end # function gene_dropping_option
 
 """
@@ -273,7 +270,7 @@ function simulate_genotypes(pedigree::Pedigree, person::Person,
   ped_size = pedigree.individuals[ped]
   descendants = ped_size - founders
   model_loci = locus.model_loci
-  q = pedigree.start[ped] - 1 # offset for founders
+  q = pedigree.pedstart[ped] - 1 # offset for founders
   r = q + founders # offset for descendants
   #
   # Allocate arrays.
@@ -364,7 +361,7 @@ function simulate_genotypes(pedigree::Pedigree, person::Person,
   #
   # Extend the simulation to co-twins.
   #
-  for i = pedigree.finish[ped] + 1:pedigree.twin_finish[ped]
+  for i = pedigree.pedfinish[ped] + 1:pedigree.twin_finish[ped]
     m = person.primary_twin[i]
     sampled_genotype[:, i - q, :] = sampled_genotype[:, m - q, :]
     source[:, i - q, :] = source[:, m - q, :]
@@ -389,7 +386,7 @@ Gene sources can be labeled by founders or ancestral populations.
 function founder_source(pedigree::Pedigree, person::Person,
   locus::Locus, ped::Int, gene_drop_output::AbstractString)
 
-  q = pedigree.start[ped] - 1
+  q = pedigree.pedstart[ped] - 1
   founders = pedigree.founders[ped]
   ped_size = pedigree.individuals[ped]
   model_loci = locus.model_loci

@@ -10,7 +10,7 @@ This [Julia](http://julialang.org/) package performs gene dropping with several 
 
 Within Julia, use the package manager to install MendelGeneDropping:
 
-    pkg> add https://github.com/OpenMendel/MendelGeneDropping.jl.git
+    pkg> add https://github.com/OpenMendel/MendelGeneDropping.jl
 
 This package supports Julia v1.0+
 
